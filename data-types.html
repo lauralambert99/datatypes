@@ -1,0 +1,1005 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Types — Categorical vs Quantitative</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:#46178f;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+/* ── Screens ── */
+.screen{display:none;width:100%;max-width:860px;flex-direction:column;align-items:center;}
+.screen.active{display:flex;}
+/* ── Cards ── */
+.card{
+  background:#fff;color:#333;
+  border-radius:14px;padding:24px;
+  width:100%;margin-bottom:16px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+/* ── Buttons ── */
+.btn{
+  border:none;border-radius:8px;
+  padding:14px 28px;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:transform .12s,box-shadow .12s;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.3);}
+.btn:active{transform:translateY(0);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-primary{background:#ff3355;color:#fff;}
+.btn-green{background:#26890c;color:#fff;}
+.btn-secondary{background:#fff;color:#46178f;}
+.btn-lg{padding:18px 40px;font-size:1.15rem;}
+/* ── Answer buttons ── */
+.answer-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  width:100%;margin-top:16px;
+}
+.abtn{
+  padding:28px 16px;font-size:1.3rem;font-weight:800;
+  border-radius:14px;border:none;cursor:pointer;color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:transform .12s,opacity .2s;min-height:100px;
+}
+.abtn:hover{transform:scale(1.04);}
+.abtn:active{transform:scale(.96);}
+.abtn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.abtn-cat{background:#1368ce;}
+.abtn-qty{background:#e21b3c;}
+/* ── Word display ── */
+.word-box{
+  text-align:center;background:#fff;color:#222;
+  border-radius:16px;padding:36px 48px;
+  font-size:2.2rem;font-weight:900;
+  width:100%;margin:16px 0;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+  line-height:1.2;
+}
+/* ── Timer ── */
+.timer-wrap{width:100%;background:rgba(255,255,255,.2);border-radius:8px;height:10px;overflow:hidden;margin-bottom:10px;}
+.timer-bar{height:100%;background:#fff;border-radius:8px;transition:width 1s linear;}
+/* ── Leaderboard ── */
+.lb-entry{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 14px;border-radius:10px;
+  margin-bottom:8px;background:#fff;color:#333;
+}
+.lb-entry.gold{background:#ffd700;color:#333;}
+.lb-entry.silver{background:#c0c0c0;color:#333;}
+.lb-entry.bronze{background:#cd7f32;color:#fff;}
+.rank-badge{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:1rem;
+  background:#46178f;color:#fff;flex-shrink:0;
+}
+.lb-name{flex:1;font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-score{font-size:1.2rem;font-weight:900;color:#46178f;}
+.lb-entry.gold .lb-score,.lb-entry.silver .lb-score{color:#333;}
+.lb-entry.bronze .lb-score{color:#fff;}
+/* ── Inputs ── */
+.igroup{display:flex;flex-direction:column;gap:6px;width:100%;margin-bottom:14px;}
+.igroup label{font-weight:600;color:#fff;font-size:.95rem;}
+input[type=text],input[type=password]{
+  padding:12px 14px;border-radius:8px;
+  border:2px solid #ddd;font-size:1rem;
+  width:100%;color:#333;
+}
+input:focus{outline:none;border-color:#46178f;}
+input:disabled{background:#f5f5f5;color:#999;}
+/* ── PIN ── */
+.pin-big{
+  font-size:3.8rem;font-weight:900;
+  letter-spacing:10px;text-align:center;
+  text-shadow:0 2px 10px rgba(0,0,0,.3);
+  margin:8px 0 16px;
+}
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{background:rgba(255,255,255,.2);border-radius:20px;padding:6px 14px;font-size:.9rem;}
+/* ── Answer count box ── */
+.stat-box{
+  background:rgba(255,255,255,.15);border-radius:10px;
+  padding:14px 20px;text-align:center;flex:1;
+}
+.stat-num{font-size:2rem;font-weight:900;line-height:1;}
+.stat-lbl{font-size:.8rem;opacity:.75;margin-top:4px;}
+/* ── Banners ── */
+.banner-ok{background:#26890c;color:#fff;border-radius:10px;padding:14px;font-size:1.1rem;font-weight:700;text-align:center;margin-bottom:14px;}
+.banner-err{background:#e21b3c;color:#fff;border-radius:10px;padding:14px;font-size:1.1rem;font-weight:700;text-align:center;margin-bottom:14px;}
+.expl{background:#f4f4f8;border-radius:8px;padding:11px 14px;color:#555;font-style:italic;font-size:.95rem;margin-top:12px;text-align:left;}
+/* ── Accuracy table ── */
+.acc-table{width:100%;border-collapse:collapse;}
+.acc-table th{text-align:left;padding:8px 10px;background:#f0f0f0;font-size:.85rem;color:#666;}
+.acc-table td{padding:9px 10px;border-bottom:1px solid #f0f0f0;font-size:.9rem;vertical-align:middle;}
+.bar-bg{background:#e8e8e8;border-radius:4px;height:8px;width:80px;display:inline-block;vertical-align:middle;}
+.bar-fill{background:#26890c;border-radius:4px;height:8px;display:block;}
+/* ── Error pills ── */
+.err-pill{background:#ff3355;color:#fff;border-radius:8px;padding:9px 14px;margin-bottom:12px;font-size:.9rem;display:none;}
+/* ── Misc helpers ── */
+.logo{font-size:2.2rem;font-weight:900;text-align:center;margin-bottom:4px;}
+.sub{font-size:.95rem;opacity:.75;text-align:center;margin-bottom:24px;}
+.qprog{font-size:.85rem;opacity:.7;margin-bottom:6px;align-self:flex-start;}
+.text-c{text-align:center;}
+.mt12{margin-top:12px;}
+.mt20{margin-top:20px;}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.trophy{font-size:4.5rem;display:block;text-align:center;}
+.winner-name{font-size:2rem;font-weight:900;text-align:center;margin:6px 0;}
+.winner-pts{font-size:1.2rem;opacity:.75;text-align:center;}
+.host-ans-hint{
+  background:rgba(255,255,255,.12);border-radius:8px;
+  padding:10px 18px;margin-bottom:14px;text-align:center;font-size:.95rem;
+}
+/* ── Responsive ── */
+@media(max-width:520px){
+  .word-box{font-size:1.6rem;padding:24px 20px;}
+  .abtn{font-size:1.1rem;padding:22px 10px;}
+  .pin-big{font-size:2.8rem;letter-spacing:6px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LANDING
+═══════════════════════════════════════════════════════ -->
+<div id="s-landing" class="screen active">
+  <div class="logo">📊 Data Types</div>
+  <div class="sub">Categorical vs Quantitative</div>
+  <div class="row">
+    <button class="btn btn-primary btn-lg" onclick="goHostSetup()">🎓 Host a Game</button>
+    <button class="btn btn-secondary btn-lg" onclick="showScreen('s-student-join')">🙋 Join as Student</button>
+  </div>
+  <div class="card mt20" style="max-width:480px;">
+    <h2 style="margin-bottom:10px;">How it works</h2>
+    <p style="margin-bottom:6px;">1. Host creates a game using a free <strong>Ably</strong> API key.</p>
+    <p style="margin-bottom:6px;">2. Share the student link — students just need a name.</p>
+    <p style="margin-bottom:6px;">3. Each question shows a data variable. Students click <span style="color:#1368ce;font-weight:700;">Categorical</span> or <span style="color:#e21b3c;font-weight:700;">Quantitative</span>.</p>
+    <p>4. Faster correct answers earn more points. Live leaderboard after each round.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST SETUP
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-setup" class="screen">
+  <div class="logo">🎓 Host Setup</div>
+  <div class="card" style="max-width:500px;">
+    <div class="err-pill" id="host-setup-err"></div>
+    <div class="igroup">
+      <label>Ably API Key</label>
+      <input type="password" id="host-ably-key" placeholder="xxxx.xxxxx:xxxxxxxxxxxxxxxxxx" />
+    </div>
+    <p style="color:#888;font-size:.85rem;margin-bottom:16px;">
+      Need a key? Create a free account at <strong>ably.com</strong> → Apps → API Keys.<br>
+      Free tier: 200 concurrent connections, perfect for a class.
+    </p>
+    <button class="btn btn-primary" style="width:100%;" onclick="hostConnect()">Connect &amp; Generate PIN →</button>
+    <div class="mt12">
+      <button class="btn btn-secondary" onclick="showScreen('s-landing')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST LOBBY
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-lobby" class="screen">
+  <div class="logo">📊 Data Types</div>
+  <p style="opacity:.8;margin-bottom:2px;">Share this PIN with students:</p>
+  <div class="pin-big" id="host-pin">——————</div>
+  <div class="card" style="max-width:600px;">
+    <p style="color:#999;font-size:.85rem;margin-bottom:8px;">Or share this direct link (auto-fills everything):</p>
+    <code id="student-link" style="word-break:break-all;font-size:.78rem;color:#333;display:block;margin-bottom:8px;"></code>
+    <button class="btn btn-secondary" style="padding:8px 16px;font-size:.85rem;" onclick="copyLink()">📋 Copy Link</button>
+  </div>
+  <div class="card" style="max-width:600px;">
+    <h2>Players joined (<span id="host-player-count">0</span>)</h2>
+    <div id="host-chips" class="chips mt12"></div>
+  </div>
+  <button class="btn btn-green btn-lg" id="start-btn" onclick="startGame()" disabled>▶ Start Game</button>
+  <p id="waiting-hint" style="margin-top:8px;opacity:.65;font-size:.9rem;">Waiting for at least 1 player…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST QUESTION
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-question" class="screen">
+  <div class="qprog" id="hq-prog">Question 1 of 10</div>
+  <div class="timer-wrap" style="max-width:700px;width:100%;"><div class="timer-bar" id="hq-timer" style="width:100%;"></div></div>
+  <div class="word-box" id="hq-word" style="max-width:700px;">—</div>
+  <div class="host-ans-hint">
+    Correct answer: <strong id="hq-correct" style="text-transform:uppercase;font-size:1.05rem;"></strong>
+  </div>
+  <div class="row" style="width:100%;max-width:700px;margin-bottom:16px;">
+    <div class="stat-box"><div class="stat-num" id="hq-ans-count">0</div><div class="stat-lbl">answered</div></div>
+    <div class="stat-box"><div class="stat-num" id="hq-total">0</div><div class="stat-lbl">total players</div></div>
+  </div>
+  <button class="btn btn-primary btn-lg" id="reveal-btn" onclick="hostReveal()">Reveal Answer</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST REVEAL
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-reveal" class="screen">
+  <div class="qprog" id="hr-prog">Question 1 of 10</div>
+  <div class="card" style="max-width:680px;">
+    <h2 id="hr-word" style="font-size:1.9rem;text-align:center;margin-bottom:8px;"></h2>
+    <div style="text-align:center;font-size:1.2rem;font-weight:700;margin-bottom:10px;">
+      Answer: <span id="hr-correct" style="text-transform:uppercase;"></span>
+    </div>
+    <div class="expl" id="hr-expl"></div>
+    <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
+    <div style="display:flex;gap:24px;justify-content:center;font-size:1.05rem;">
+      <span>✅ <strong id="hr-ok">0</strong> correct</span>
+      <span>❌ <strong id="hr-wrong">0</strong> wrong</span>
+      <span>⏰ <strong id="hr-skip">0</strong> no answer</span>
+    </div>
+  </div>
+  <button class="btn btn-green btn-lg" onclick="hostShowLeaderboard()">See Leaderboard →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST LEADERBOARD
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-lb" class="screen">
+  <div class="qprog" id="hlb-prog">After Question 1</div>
+  <h2 style="margin-bottom:16px;">Leaderboard</h2>
+  <div id="host-lb" style="width:100%;max-width:600px;margin-bottom:20px;"></div>
+  <div class="row">
+    <button class="btn btn-primary btn-lg" id="next-q-btn" onclick="hostNextQuestion()">Next Question →</button>
+    <button class="btn btn-secondary" onclick="hostEndGame()">End Game</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOST END
+═══════════════════════════════════════════════════════ -->
+<div id="s-host-end" class="screen">
+  <div class="logo">🎉 Game Over!</div>
+  <div class="card mt12" style="max-width:600px;">
+    <span class="trophy">🏆</span>
+    <div class="winner-name" id="he-winner-name">—</div>
+    <div class="winner-pts" id="he-winner-pts"></div>
+  </div>
+  <div class="card" style="max-width:600px;">
+    <h2 style="margin-bottom:12px;">Final Standings</h2>
+    <div id="host-final-lb"></div>
+  </div>
+  <div class="card" style="max-width:600px;">
+    <h2 style="margin-bottom:12px;">Per-Word Class Accuracy</h2>
+    <table class="acc-table">
+      <thead><tr><th>Variable</th><th>Type</th><th>% Correct</th></tr></thead>
+      <tbody id="he-acc"></tbody>
+    </table>
+  </div>
+  <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT JOIN
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-join" class="screen">
+  <div class="logo">🙋 Join Game</div>
+  <div class="card" style="max-width:450px;">
+    <div class="err-pill" id="join-err"></div>
+    <div class="igroup">
+      <label>Game PIN</label>
+      <input type="text" id="sj-pin" placeholder="6-digit PIN" maxlength="6"
+             style="font-size:2rem;text-align:center;letter-spacing:8px;"
+             oninput="this.value=this.value.replace(/\D/g,'')"
+             onkeydown="if(event.key==='Enter') studentJoin()" />
+    </div>
+    <div class="igroup">
+      <label>Your Name</label>
+      <input type="text" id="sj-name" placeholder="Enter your name" maxlength="24"
+             onkeydown="if(event.key==='Enter') studentJoin()" />
+    </div>
+    <div class="igroup" id="sj-key-group">
+      <label>Connection Key <span style="font-weight:400;opacity:.7;">(from host's link — auto-filled if you used it)</span></label>
+      <input type="password" id="sj-key" placeholder="xxxx.xxxxx:xxxxxxxxxxxxxxxxxx" />
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="studentJoin()">Join Game →</button>
+    <div class="mt12">
+      <button class="btn btn-secondary" onclick="showScreen('s-landing')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT LOBBY
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-lobby" class="screen">
+  <div class="logo">📊 Data Types</div>
+  <div class="pin-big" id="sl-pin">——————</div>
+  <div class="card" style="max-width:400px;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:8px;">👋</div>
+    <h2 id="sl-welcome">You're in!</h2>
+    <p style="color:#666;margin-top:6px;">Waiting for the host to start…</p>
+    <p id="sl-count" style="color:#999;margin-top:10px;font-size:.9rem;"></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT QUESTION
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-q" class="screen">
+  <div class="qprog" id="sq-prog">Question 1 of 10</div>
+  <div class="timer-wrap" style="max-width:700px;width:100%;"><div class="timer-bar" id="sq-timer" style="width:100%;"></div></div>
+  <div class="word-box" id="sq-word" style="max-width:700px;">—</div>
+  <div class="answer-grid" style="max-width:700px;">
+    <button class="abtn abtn-cat" id="btn-cat" onclick="submitAnswer('categorical')">▲ Categorical</button>
+    <button class="abtn abtn-qty" id="btn-qty" onclick="submitAnswer('quantitative')">● Quantitative</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT ANSWERED (waiting for reveal)
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-wait" class="screen">
+  <div class="qprog" id="sw-prog">Question 1 of 10</div>
+  <div class="timer-wrap" style="max-width:700px;width:100%;"><div class="timer-bar" id="sw-timer" style="width:100%;"></div></div>
+  <div class="card" style="max-width:480px;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:8px;">✅</div>
+    <h2>Answer locked in!</h2>
+    <p style="color:#666;margin-top:6px;">You chose: <strong id="sw-my-ans"></strong></p>
+    <p style="color:#aaa;margin-top:8px;">Waiting for the host to reveal…</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT REVEAL
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-reveal" class="screen">
+  <div class="card" style="max-width:620px;">
+    <div id="sr-banner" class="banner-ok"></div>
+    <div style="font-size:1.4rem;font-weight:700;text-align:center;color:#333;margin-bottom:6px;">
+      <span id="sr-word"></span> is <span id="sr-correct" style="text-transform:uppercase;"></span>
+    </div>
+    <div class="expl" id="sr-expl"></div>
+    <div style="margin-top:14px;text-align:center;font-size:1rem;color:#666;">
+      Your total score: <strong id="sr-score" style="color:#46178f;font-size:1.4rem;">0</strong> pts
+    </div>
+  </div>
+  <p style="opacity:.65;font-size:.9rem;">Waiting for host…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT LEADERBOARD
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-lb" class="screen">
+  <div class="qprog" id="slb-prog">After Question 1</div>
+  <h2 style="margin-bottom:16px;">Leaderboard</h2>
+  <div id="student-lb" style="width:100%;max-width:600px;margin-bottom:12px;"></div>
+  <p style="opacity:.65;font-size:.9rem;">Waiting for next question…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     STUDENT END
+═══════════════════════════════════════════════════════ -->
+<div id="s-student-end" class="screen">
+  <div class="logo">🎉 Game Over!</div>
+  <div class="card mt12" style="max-width:600px;">
+    <span class="trophy">🏆</span>
+    <div class="winner-name" id="se-winner-name">—</div>
+    <div class="winner-pts" id="se-winner-pts"></div>
+  </div>
+  <div class="card" style="max-width:600px;">
+    <h2 style="margin-bottom:12px;">Final Standings</h2>
+    <div id="student-final-lb"></div>
+  </div>
+  <div class="card" style="max-width:600px;">
+    <h2 style="margin-bottom:12px;">Per-Word Class Accuracy</h2>
+    <table class="acc-table">
+      <thead><tr><th>Variable</th><th>Type</th><th>% Correct</th></tr></thead>
+      <tbody id="se-acc"></tbody>
+    </table>
+  </div>
+  <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ABLY SDK
+═══════════════════════════════════════════════════════ -->
+<script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════════
+// QUESTIONS
+// ══════════════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    word: 'ZIP Code',
+    answer: 'categorical',
+    explanation: 'ZIP codes look numeric but they label geographic areas. Averaging them (e.g., "mean ZIP = 54230") is meaningless.'
+  },
+  {
+    word: 'Temperature (°F)',
+    answer: 'quantitative',
+    explanation: 'Temperature is measured on a numeric scale. The difference between 70°F and 80°F is a meaningful 10-degree gap.'
+  },
+  {
+    word: 'Eye Color',
+    answer: 'categorical',
+    explanation: 'Blue, brown, hazel — these are named groups with no numeric order or spacing.'
+  },
+  {
+    word: 'Number of Siblings',
+    answer: 'quantitative',
+    explanation: 'A count variable with meaningful numeric values. You can calculate an average number of siblings across a class.'
+  },
+  {
+    word: 'Blood Type',
+    answer: 'categorical',
+    explanation: 'A, B, AB, O — these are distinct biological categories, not measurements on a numeric scale.'
+  },
+  {
+    word: 'Height (cm)',
+    answer: 'quantitative',
+    explanation: 'Height is a continuous measurement. 180 cm is twice as tall as 90 cm — ratios are meaningful.'
+  },
+  {
+    word: 'Student ID Number',
+    answer: 'categorical',
+    explanation: 'Student IDs are identifiers, not measurements. Adding two student IDs together has no statistical meaning.'
+  },
+  {
+    word: 'GPA',
+    answer: 'quantitative',
+    explanation: 'GPA is a numeric score on a defined scale. You can compute class means, ranges, and standard deviations.'
+  },
+  {
+    word: 'Country of Birth',
+    answer: 'categorical',
+    explanation: 'Countries are named categories. There is no numeric ordering or fixed spacing between "Canada" and "Brazil."'
+  },
+  {
+    word: 'Phone Number',
+    answer: 'categorical',
+    explanation: 'Phone numbers look numeric but are identifiers. Adding or averaging them is statistically meaningless.'
+  },
+];
+
+const QUESTION_DURATION = 20; // seconds
+const MAX_PTS = 1000;
+const MIN_PTS = 500;
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+const G = {
+  mode: null,          // 'host' | 'student'
+  ablyKey: null,
+  pin: null,
+  playerId: (typeof crypto !== 'undefined' && crypto.randomUUID)
+             ? crypto.randomUUID()
+             : Math.random().toString(36).slice(2) + Date.now(),
+  playerName: null,
+  ably: null,
+  channel: null,
+  players: {},         // { id: { name, score } }
+  questionIndex: -1,
+  questionStartTime: null,
+  answers: {},         // host: { playerId: { answer, timeMs } }
+  myAnswer: null,
+  wordAccuracy: [],    // [{ word, answer, correct, total }]
+  timerRAF: null,
+  timerEnd: null,
+  timerBars: [],
+  timerDoneCallback: null,
+};
+
+// ══════════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ══════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════════════════════
+// ABLY CONNECTION
+// ══════════════════════════════════════════════════════════
+function connectAbly(key) {
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const ably = new Ably.Realtime({ key, closeOnUnloadListener: true });
+    const timer = setTimeout(() => {
+      if (!done) { done = true; reject(new Error('Connection timed out — check your API key.')); }
+    }, 9000);
+    ably.connection.once('connected', () => {
+      if (!done) { done = true; clearTimeout(timer); resolve(ably); }
+    });
+    ably.connection.once('failed', (err) => {
+      if (!done) { done = true; clearTimeout(timer); reject(new Error('Connection failed — is the API key correct?')); }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// TIMER (rAF-based, synced across bar elements)
+// ══════════════════════════════════════════════════════════
+function startTimer(durationSec, barIds, onDone) {
+  cancelTimer();
+  G.timerEnd = Date.now() + durationSec * 1000;
+  G.timerBars = barIds;
+  G.timerDoneCallback = onDone;
+
+  function tick() {
+    const remaining = Math.max(0, G.timerEnd - Date.now());
+    const pct = (remaining / (durationSec * 1000)) * 100;
+    G.timerBars.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.transition = 'none'; el.style.width = pct + '%'; }
+    });
+    if (remaining <= 0) {
+      cancelTimer();
+      if (G.timerDoneCallback) G.timerDoneCallback();
+    } else {
+      G.timerRAF = requestAnimationFrame(tick);
+    }
+  }
+  G.timerRAF = requestAnimationFrame(tick);
+}
+
+function cancelTimer() {
+  if (G.timerRAF) { cancelAnimationFrame(G.timerRAF); G.timerRAF = null; }
+}
+
+// ══════════════════════════════════════════════════════════
+// SHARED RENDER HELPERS
+// ══════════════════════════════════════════════════════════
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderLeaderboard(containerId, scores) {
+  const sorted = [...scores].sort((a, b) => b.score - a.score).slice(0, 10);
+  document.getElementById(containerId).innerHTML = sorted.map((p, i) => {
+    const cls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const isMe = G.mode === 'student' && p.id === G.playerId;
+    return `<div class="lb-entry ${cls}" style="${isMe ? 'outline:3px solid #46178f;' : ''}">
+      <div class="rank-badge">${i + 1}</div>
+      <div class="lb-name">${esc(p.name)}${isMe ? ' 👈' : ''}</div>
+      <div class="lb-score">${p.score} pts</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccuracy(tbodyId, wordAccuracy) {
+  document.getElementById(tbodyId).innerHTML = wordAccuracy.map(w => {
+    const pct = w.total ? Math.round((w.correct / w.total) * 100) : 0;
+    const color = w.answer === 'categorical' ? '#1368ce' : '#e21b3c';
+    return `<tr>
+      <td><strong>${esc(w.word)}</strong></td>
+      <td style="color:${color};font-weight:700;text-transform:uppercase;">${w.answer}</td>
+      <td>
+        ${pct}%
+        <span class="bar-bg" style="margin-left:8px;">
+          <span class="bar-fill" style="width:${pct}%;"></span>
+        </span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function showErr(elId, msg) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideErr(elId) {
+  document.getElementById(elId).style.display = 'none';
+}
+
+function getPlayerList() {
+  return Object.entries(G.players).map(([id, p]) => ({ id, name: p.name, score: p.score }));
+}
+
+function calcPoints(timeMs) {
+  const frac = Math.min(timeMs / (QUESTION_DURATION * 1000), 1);
+  return Math.round(MAX_PTS - frac * (MAX_PTS - MIN_PTS));
+}
+
+// ══════════════════════════════════════════════════════════
+// HOST FLOW
+// ══════════════════════════════════════════════════════════
+function goHostSetup() { showScreen('s-host-setup'); }
+
+async function hostConnect() {
+  const key = document.getElementById('host-ably-key').value.trim();
+  hideErr('host-setup-err');
+  if (!key) { showErr('host-setup-err', 'Please enter your Ably API key.'); return; }
+
+  const btn = document.querySelector('#s-host-setup .btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'Connecting…';
+
+  try {
+    G.ablyKey = key;
+    G.ably = await connectAbly(key);
+    G.pin = String(Math.floor(100000 + Math.random() * 900000));
+    G.mode = 'host';
+    G.channel = G.ably.channels.get('dtdash-' + G.pin);
+    G.players = {};
+    G.questionIndex = -1;
+    G.wordAccuracy = QUESTIONS.map(q => ({ word: q.word, answer: q.answer, correct: 0, total: 0 }));
+
+    G.channel.subscribe(onHostMessage);
+
+    document.getElementById('host-pin').textContent = G.pin;
+    const link = buildStudentUrl(key, G.pin);
+    document.getElementById('student-link').textContent = link;
+    document.getElementById('host-chips').innerHTML = '';
+    document.getElementById('host-player-count').textContent = '0';
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('waiting-hint').style.display = '';
+    showScreen('s-host-lobby');
+  } catch (e) {
+    showErr('host-setup-err', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Connect & Generate PIN →';
+  }
+}
+
+function onHostMessage(msg) {
+  const { name, data } = msg;
+  if (name === 'student:join') {
+    const { playerId, playerName } = data;
+    if (!G.players[playerId]) {
+      G.players[playerId] = { name: playerName, score: 0 };
+      updateHostLobby();
+      G.channel.publish('host:players', { players: getPlayerList() });
+    }
+  } else if (name === 'student:answer') {
+    const { playerId, answer, questionIndex } = data;
+    if (questionIndex === G.questionIndex && !G.answers[playerId] && G.players[playerId]) {
+      G.answers[playerId] = { answer, timeMs: Date.now() - G.questionStartTime };
+      updateAnswerCount();
+    }
+  }
+}
+
+function updateHostLobby() {
+  const count = Object.keys(G.players).length;
+  document.getElementById('host-player-count').textContent = count;
+  document.getElementById('host-chips').innerHTML =
+    Object.values(G.players).map(p => `<div class="chip">${esc(p.name)}</div>`).join('');
+  document.getElementById('start-btn').disabled = count === 0;
+  document.getElementById('waiting-hint').style.display = count > 0 ? 'none' : '';
+}
+
+function updateAnswerCount() {
+  document.getElementById('hq-ans-count').textContent = Object.keys(G.answers).length;
+}
+
+function startGame() {
+  G.questionIndex = -1;
+  hostNextQuestion();
+}
+
+function hostNextQuestion() {
+  G.questionIndex++;
+  if (G.questionIndex >= QUESTIONS.length) { hostEndGame(); return; }
+
+  const q = QUESTIONS[G.questionIndex];
+  G.answers = {};
+  G.questionStartTime = Date.now();
+
+  document.getElementById('hq-prog').textContent = `Question ${G.questionIndex + 1} of ${QUESTIONS.length}`;
+  document.getElementById('hq-word').textContent = q.word;
+  document.getElementById('hq-correct').textContent = q.answer;
+  document.getElementById('hq-ans-count').textContent = '0';
+  document.getElementById('hq-total').textContent = Object.keys(G.players).length;
+  document.getElementById('reveal-btn').disabled = false;
+
+  showScreen('s-host-question');
+  startTimer(QUESTION_DURATION, ['hq-timer'], () => {
+    if (document.getElementById('s-host-question').classList.contains('active')) hostReveal();
+  });
+
+  G.channel.publish('host:question', {
+    questionIndex: G.questionIndex,
+    word: q.word,
+    startTime: G.questionStartTime,
+    duration: QUESTION_DURATION,
+  });
+}
+
+function hostReveal() {
+  cancelTimer();
+  document.getElementById('reveal-btn').disabled = true;
+
+  const q = QUESTIONS[G.questionIndex];
+  const playerCount = Object.keys(G.players).length;
+  let correctCount = 0, wrongCount = 0;
+
+  Object.entries(G.answers).forEach(([playerId, ans]) => {
+    const correct = ans.answer === q.answer;
+    if (correct) {
+      G.players[playerId].score += calcPoints(ans.timeMs);
+      G.wordAccuracy[G.questionIndex].correct++;
+      correctCount++;
+    } else {
+      wrongCount++;
+    }
+    G.wordAccuracy[G.questionIndex].total++;
+  });
+
+  const skipCount = playerCount - Object.keys(G.answers).length;
+
+  document.getElementById('hr-prog').textContent = `Question ${G.questionIndex + 1} of ${QUESTIONS.length}`;
+  document.getElementById('hr-word').textContent = q.word;
+  document.getElementById('hr-correct').textContent = q.answer;
+  document.getElementById('hr-expl').textContent = q.explanation;
+  document.getElementById('hr-ok').textContent = correctCount;
+  document.getElementById('hr-wrong').textContent = wrongCount;
+  document.getElementById('hr-skip').textContent = skipCount;
+
+  showScreen('s-host-reveal');
+
+  const playerScores = {};
+  Object.entries(G.players).forEach(([id, p]) => { playerScores[id] = p.score; });
+
+  G.channel.publish('host:reveal', {
+    questionIndex: G.questionIndex,
+    word: q.word,
+    correctAnswer: q.answer,
+    explanation: q.explanation,
+    answers: G.answers,
+    scores: playerScores,
+  });
+}
+
+function hostShowLeaderboard() {
+  const scores = getPlayerList();
+  document.getElementById('hlb-prog').textContent = `After Question ${G.questionIndex + 1}`;
+  renderLeaderboard('host-lb', scores);
+
+  const isLast = G.questionIndex >= QUESTIONS.length - 1;
+  document.getElementById('next-q-btn').textContent = isLast ? 'End Game →' : 'Next Question →';
+
+  showScreen('s-host-lb');
+  G.channel.publish('host:leaderboard', { scores });
+}
+
+function hostEndGame() {
+  cancelTimer();
+  const scores = getPlayerList().sort((a, b) => b.score - a.score);
+  const winner = scores[0];
+
+  document.getElementById('he-winner-name').textContent = winner ? winner.name : '—';
+  document.getElementById('he-winner-pts').textContent = winner ? `${winner.score} pts` : '';
+  renderLeaderboard('host-final-lb', scores);
+  renderAccuracy('he-acc', G.wordAccuracy);
+
+  showScreen('s-host-end');
+  G.channel.publish('host:end', { scores, wordAccuracy: G.wordAccuracy });
+}
+
+function copyLink() {
+  const url = document.getElementById('student-link').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2000);
+  }).catch(() => {
+    // fallback: select the text
+    const range = document.createRange();
+    range.selectNode(document.getElementById('student-link'));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// STUDENT FLOW
+// ══════════════════════════════════════════════════════════
+async function studentJoin() {
+  const pin  = document.getElementById('sj-pin').value.trim();
+  const name = document.getElementById('sj-name').value.trim();
+  const keyInput = document.getElementById('sj-key').value.trim();
+  const key  = G.ablyKey || keyInput;
+  hideErr('join-err');
+
+  if (!pin || pin.length !== 6) { showErr('join-err', 'Enter the 6-digit game PIN.'); return; }
+  if (!name) { showErr('join-err', 'Enter your name.'); return; }
+  if (!key) { showErr('join-err', 'Enter the connection key (use the link your host shared, or paste the key).'); return; }
+
+  const btn = document.querySelector('#s-student-join .btn-primary');
+  btn.disabled = true;
+  btn.textContent = 'Joining…';
+
+  try {
+    G.ablyKey = key;
+    G.playerName = name;
+    G.pin = pin;
+    G.ably = await connectAbly(key);
+    G.mode = 'student';
+    G.channel = G.ably.channels.get('dtdash-' + pin);
+
+    G.channel.subscribe(onStudentMessage);
+
+    document.getElementById('sl-pin').textContent = pin;
+    document.getElementById('sl-welcome').textContent = `You're in, ${name}!`;
+
+    showScreen('s-student-lobby');
+    G.channel.publish('student:join', { playerId: G.playerId, playerName: name });
+  } catch (e) {
+    showErr('join-err', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Join Game →';
+  }
+}
+
+function onStudentMessage(msg) {
+  const { name, data } = msg;
+  if (name === 'host:players') {
+    document.getElementById('sl-count').textContent =
+      `${data.players.length} player${data.players.length !== 1 ? 's' : ''} in the lobby`;
+  } else if (name === 'host:question') {
+    receiveQuestion(data);
+  } else if (name === 'host:reveal') {
+    receiveReveal(data);
+  } else if (name === 'host:leaderboard') {
+    receiveLeaderboard(data);
+  } else if (name === 'host:end') {
+    receiveEnd(data);
+  }
+}
+
+function receiveQuestion(data) {
+  G.questionIndex = data.questionIndex;
+  G.questionStartTime = data.startTime;
+  G.myAnswer = null;
+
+  document.getElementById('sq-prog').textContent = `Question ${data.questionIndex + 1} of ${QUESTIONS.length}`;
+  document.getElementById('sq-word').textContent = data.word;
+  document.getElementById('btn-cat').disabled = false;
+  document.getElementById('btn-qty').disabled = false;
+
+  showScreen('s-student-q');
+
+  const elapsed = (Date.now() - data.startTime) / 1000;
+  const remaining = Math.max(1, data.duration - elapsed);
+  startTimer(remaining, ['sq-timer'], () => {
+    document.getElementById('btn-cat').disabled = true;
+    document.getElementById('btn-qty').disabled = true;
+  });
+}
+
+function submitAnswer(answer) {
+  if (G.myAnswer) return;
+  G.myAnswer = answer;
+  cancelTimer();
+
+  document.getElementById('btn-cat').disabled = true;
+  document.getElementById('btn-qty').disabled = true;
+
+  G.channel.publish('student:answer', {
+    playerId: G.playerId,
+    playerName: G.playerName,
+    answer,
+    questionIndex: G.questionIndex,
+  });
+
+  const elapsed = (Date.now() - G.questionStartTime) / 1000;
+  const remaining = Math.max(0, QUESTION_DURATION - elapsed);
+
+  document.getElementById('sw-prog').textContent = `Question ${G.questionIndex + 1} of ${QUESTIONS.length}`;
+  document.getElementById('sw-my-ans').textContent = answer.charAt(0).toUpperCase() + answer.slice(1);
+  showScreen('s-student-wait');
+  startTimer(remaining, ['sw-timer'], () => {});
+}
+
+function receiveReveal(data) {
+  cancelTimer();
+  const { correctAnswer, explanation, word, answers, scores } = data;
+  const myAns = answers[G.playerId];
+  const correct = myAns && myAns.answer === correctAnswer;
+  const noAnswer = !myAns;
+
+  const banner = document.getElementById('sr-banner');
+  if (noAnswer) {
+    banner.className = 'banner-err';
+    banner.textContent = "⏰ Time's up — no answer recorded.";
+  } else if (correct) {
+    const pts = calcPoints(myAns.timeMs);
+    banner.className = 'banner-ok';
+    banner.textContent = `✅ Correct! +${pts} pts`;
+  } else {
+    banner.className = 'banner-err';
+    banner.textContent = '❌ Wrong answer.';
+  }
+
+  document.getElementById('sr-word').textContent = word;
+  document.getElementById('sr-correct').textContent = correctAnswer;
+  document.getElementById('sr-expl').textContent = explanation;
+  document.getElementById('sr-score').textContent = scores[G.playerId] || 0;
+  showScreen('s-student-reveal');
+}
+
+function receiveLeaderboard(data) {
+  document.getElementById('slb-prog').textContent = `After Question ${G.questionIndex + 1}`;
+  renderLeaderboard('student-lb', data.scores);
+  showScreen('s-student-lb');
+}
+
+function receiveEnd(data) {
+  const { scores, wordAccuracy } = data;
+  const sorted = [...scores].sort((a, b) => b.score - a.score);
+  const winner = sorted[0];
+
+  document.getElementById('se-winner-name').textContent = winner ? winner.name : '—';
+  document.getElementById('se-winner-pts').textContent = winner ? `${winner.score} pts` : '';
+  renderLeaderboard('student-final-lb', scores);
+  renderAccuracy('se-acc', wordAccuracy);
+  showScreen('s-student-end');
+}
+
+// ══════════════════════════════════════════════════════════
+// URL HELPERS
+// ══════════════════════════════════════════════════════════
+function buildStudentUrl(key, pin) {
+  const base = location.href.split('#')[0];
+  return `${base}#mode=student&key=${encodeURIComponent(key)}&pin=${pin}`;
+}
+
+function parseHash() {
+  const params = {};
+  location.hash.slice(1).split('&').forEach(p => {
+    const eq = p.indexOf('=');
+    if (eq > -1) params[p.slice(0, eq)] = decodeURIComponent(p.slice(eq + 1));
+  });
+  return params;
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const p = parseHash();
+  if (p.mode === 'student' && p.key && p.pin) {
+    G.ablyKey = p.key;
+    document.getElementById('sj-pin').value = p.pin;
+    const keyInput = document.getElementById('sj-key');
+    keyInput.value = '(auto-filled from host link)';
+    keyInput.disabled = true;
+    // Focus name field so students just type their name and press Enter
+    setTimeout(() => document.getElementById('sj-name').focus(), 100);
+    showScreen('s-student-join');
+  } else {
+    showScreen('s-landing');
+  }
+
+  // Enter key on PIN field moves focus to name
+  document.getElementById('sj-pin').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('sj-name').focus();
+  });
+});
+</script>
+</body>
+</html>
